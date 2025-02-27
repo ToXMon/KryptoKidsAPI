@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KryptoKids Drawing Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        nav {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Upload Drawing</a>
+        <a href="transform.html">Transform Drawing</a>
+        <a href="text_to_image.html">Magic Drawing Creator</a>
+    </nav>
+
+    <h1>KryptoKids Drawing Upload</h1>
+    <p>Upload a child's drawing along with the required metadata.</p>
+
+    <form id="uploadForm">
+        <div>
+            <label for="file">Drawing Image:</label>
+            <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.gif" required>
+        </div>
+        <div>
+            <label for="name">Name (Child's name or artwork name):</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+            <label for="holdjarID">Holdjar ID (e.g., wallet address):</label>
+            <input type="text" id="holdjarID" name="holdjarID" required>
+        </div>
+        <div>
+            <label for="animal">Animal (Subject of the drawing):</label>
+            <input type="text" id="animal" name="animal" required>
+        </div>
+        <button type="submit">Upload Drawing</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const responseDiv = document.getElementById('response');
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/drawing', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                responseDiv.style.display = 'block';
+                
+                if (result.success) {
+                    responseDiv.className = 'success';
+                    responseDiv.innerHTML = '<h3>Success!</h3><p>' + result.message + '</p><pre>' + JSON.stringify(result.data, null, 2) + '</pre>';
+                } else {
+                    responseDiv.className = 'error';
+                    responseDiv.innerHTML = '<h3>Error</h3><p>' + result.error + '</p>';
+                }
+            } catch (error) {
+                responseDiv.style.display = 'block';
+                responseDiv.className = 'error';
+                responseDiv.innerHTML = '<h3>Error</h3><p>There was a problem with the upload: ' + error.message + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>

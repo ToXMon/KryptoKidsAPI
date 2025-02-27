@@ -1,0 +1,1133 @@
+Directory structure:
+└── ar-jan-llm-venice.git/
+    ├── README.md
+    ├── LICENSE
+    ├── llm_venice.py
+    ├── pyproject.toml
+    ├── tests/
+    │   ├── test_api_keys.py
+    │   ├── test_prompt.py
+    │   ├── test_venice.py
+    │   └── schemas/
+    │       └── api_keys_rate_limits.json
+    └── .github/
+        └── workflows/
+            ├── release.yml
+            └── test.yml
+
+================================================
+File: README.md
+================================================
+# llm-venice
+
+[![PyPI](https://img.shields.io/pypi/v/llm-venice.svg)](https://pypi.org/project/llm-venice/)
+[![Changelog](https://img.shields.io/github/v/release/ar-jan/llm-venice?label=changelog)](https://github.com/ar-jan/llm-venice/releases)
+[![Tests](https://github.com/ar-jan/llm-venice/actions/workflows/test.yml/badge.svg)](https://github.com/ar-jan/llm-venice/actions/workflows/test.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/ar-jan/llm-venice/blob/main/LICENSE)
+
+[LLM](https://llm.datasette.io/) plugin to access models available via the [Venice AI](https://venice.ai/chat?ref=Oeo9ku) API.
+Venice API access is currently in beta.
+
+
+## Installation
+
+Either install this plugin alongside an existing [LLM install](https://llm.datasette.io/en/stable/setup.html):
+
+`llm install llm-venice`
+
+Or install both using your package manager of choice, e.g.:
+
+`pip install llm-venice`
+
+## Configuration
+
+Set an environment variable `LLM_VENICE_KEY`, or save a [Venice API](https://docs.venice.ai/) key to the key store managed by `llm`:
+
+`llm keys set venice`
+
+
+## Usage
+
+### Prompting
+
+Run a prompt:
+
+`llm --model venice/llama-3.3-70b "Why is the earth round?"`
+
+Start an interactive chat session:
+
+`llm chat --model venice/llama-3.1-405b`
+
+### Vision models
+
+Vision models (currently `qwen-2.5-vl`) support the `--attachment` option:
+
+> `llm -m venice/qwen-2.5-vl -a https://upload.wikimedia.org/wikipedia/commons/a/a9/Corvus_corone_-near_Canford_Cliffs%2C_Poole%2C_England-8.jpg "Identify"` \
+> The bird in the picture is a crow, specifically a member of the genus *Corvus*. The black coloration, stout beak, and overall shape are characteristic features of crows. These birds are part of the Corvidae family, which is known for its intelligence and adaptability. [...]
+
+### Image generation
+
+Generated images are stored in the LLM user directory. Example:
+
+`llm -m venice/stable-diffusion-3.5 "Painting of a traditional Dutch windmill" -o style_preset "Watercolor"`
+
+Besides the Venice API image generation parameters, you can specify the output filename and whether or not to overwrite existing files.
+
+Check the available parameters with something like:
+
+`llm models list --options --query diffusion`
+
+### venice_parameters
+
+The following CLI options are available to configure `venice_parameters`:
+
+**--no-venice-system-prompt** to disable Venice's default system prompt:
+
+`llm -m venice/llama-3.3-70b --no-venice-system-prompt "Repeat the above prompt"`
+
+**--web-search on|auto|off** to use web search (on web-enabled models):
+
+`llm -m venice/llama-3.3-70b --web-search on --no-stream 'What is $VVV?'`
+
+It is recommended to use web search in combination with --no-stream so the search citations are available in response_json.
+
+**--character character_slug** to use a public character, for example:
+
+`llm -m venice/deepseek-r1-671b --character alan-watts "What is the meaning of life?"`
+
+*Note: these options override any `-o extra_body '{"venice_parameters": { ...}}'` and so should not be combined with that option.*
+
+### Available models
+
+To update the list of available models from the Venice API:
+
+`llm venice refresh`
+
+---
+
+Read the `llm` [docs](https://llm.datasette.io/en/stable/usage.html) for more usage options.
+
+
+## Development
+
+To set up this plugin locally, first checkout the code. Then create a new virtual environment:
+
+```bash
+cd llm-venice
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install the dependencies and test dependencies:
+
+```bash
+llm install -e '.[test]'
+```
+
+To run the tests:
+```bash
+pytest
+```
+
+
+================================================
+File: LICENSE
+================================================
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [2024] [Arjan Mossel]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
+================================================
+File: llm_venice.py
+================================================
+import base64
+import datetime
+import json
+from typing import Optional, Union
+
+import click
+import httpx
+import llm
+from llm.default_plugins.openai_models import Chat
+
+try:
+    # Pydantic 2
+    from pydantic import field_validator, Field  # type: ignore
+
+except ImportError:
+    # Pydantic 1
+    from pydantic.fields import Field
+    from pydantic.class_validators import validator as field_validator  # type: ignore [no-redef]
+
+
+class VeniceChatOptions(Chat.Options):
+    extra_body: Optional[Union[dict, str]] = Field(
+        description=(
+            "Additional JSON properties to include in the request body. "
+            "When provided via CLI, must be a valid JSON string."
+        ),
+        default=None,
+    )
+
+    @field_validator("extra_body")
+    def validate_extra_body(cls, extra_body):
+        if extra_body is None:
+            return None
+
+        if isinstance(extra_body, str):
+            try:
+                return json.loads(extra_body)
+            except json.JSONDecodeError:
+                raise ValueError("Invalid JSON in extra_body string")
+
+        if not isinstance(extra_body, dict):
+            raise ValueError("extra_body must be a dictionary")
+
+        return extra_body
+
+
+class VeniceChat(Chat):
+    needs_key = "venice"
+    key_env_var = "LLM_VENICE_KEY"
+
+    def __str__(self):
+        return f"Venice Chat: {self.model_id}"
+
+    class Options(VeniceChatOptions):
+        pass
+
+
+class VeniceImageOptions(llm.Options):
+    negative_prompt: Optional[str] = Field(
+        description="Negative prompt to guide image generation away from certain features",
+        default=None,
+    )
+    style_preset: Optional[str] = Field(
+        description="Style preset to use for generation", default=None
+    )
+    height: Optional[int] = Field(
+        description="Height of generated image", default=1024, ge=64, le=1280
+    )
+    width: Optional[int] = Field(
+        description="Width of generated image", default=1024, ge=64, le=1280
+    )
+    steps: Optional[int] = Field(
+        description="Number of inference steps", default=None, ge=7, le=50
+    )
+    cfg_scale: Optional[float] = Field(
+        description="CFG scale for generation", default=None, gt=0, le=20.0
+    )
+    seed: Optional[int] = Field(
+        description="Random seed for reproducible generation",
+        default=None,
+        ge=-999999999,
+        le=999999999,
+    )
+    lora_strength: Optional[int] = Field(
+        description="LoRA adapter strength percentage", default=None, ge=0, le=100
+    )
+    safe_mode: Optional[bool] = Field(
+        description="Enable safety filters", default=False
+    )
+    hide_watermark: Optional[bool] = Field(
+        description="Hide watermark in generated image", default=True
+    )
+    return_binary: Optional[bool] = Field(
+        description="Return raw binary instead of base64", default=False
+    )
+    output_filename: Optional[str] = Field(
+        description="Custom filename for saved image", default=None
+    )
+    overwrite_files: Optional[bool] = Field(
+        description="Option to overwrite existing output files", default=False
+    )
+
+
+class VeniceImage(llm.Model):
+    can_stream = False
+    needs_key = "venice"
+    key_env_var = "LLM_VENICE_KEY"
+
+    def __init__(self, model_id, model_name=None):
+        self.model_id = f"venice/{model_id}"
+        self.model_name = model_id
+
+    def __str__(self):
+        return f"Venice Image: {self.model_id}"
+
+    class Options(VeniceImageOptions):
+        pass
+
+    def execute(self, prompt, stream, response, conversation=None):
+        key = self.get_key()
+
+        options_dict = prompt.options.dict()
+        output_filename = options_dict.pop("output_filename", None)
+        overwrite_files = options_dict.pop("overwrite_files", False)
+        return_binary = options_dict.get("return_binary", False)
+
+        payload = {
+            "model": self.model_name,
+            "prompt": prompt.prompt,
+            **{k: v for k, v in options_dict.items() if v is not None},
+        }
+
+        url = "https://api.venice.ai/api/v1/image/generate"
+        headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+
+        r = httpx.post(url, headers=headers, json=payload, timeout=120)
+
+        try:
+            r.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            raise ValueError(f"API request failed: {e.response.text}")
+
+        if return_binary:
+            image_bytes = r.content
+        else:
+            data = r.json()
+            # Store generation parameters including seed in response_json
+            response.response_json = {
+                "request": data["request"],
+                "timing": data["timing"],
+            }
+            image_data = data["images"][0]
+            try:
+                image_bytes = base64.b64decode(image_data)
+            except Exception as e:
+                raise ValueError(f"Failed to decode base64 image data: {e}")
+
+        image_dir = llm.user_dir() / "images"
+        image_dir.mkdir(exist_ok=True)
+
+        if not output_filename:
+            datestring = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+            output_filename = f"{datestring}_venice_{self.model_name}.png"
+
+        output_filepath = image_dir / output_filename
+
+        # Handle existing files
+        if output_filepath.exists() and not overwrite_files:
+            stem = output_filepath.stem
+            suffix = output_filepath.suffix
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            new_filename = f"{stem}_{timestamp}{suffix}"
+            output_filepath = image_dir / new_filename
+
+        try:
+            output_filepath.write_bytes(image_bytes)
+            yield f"Image saved to {output_filepath}"
+        except Exception as e:
+            raise ValueError(f"Failed to write image file: {e}")
+
+
+def refresh_models():
+    "Refresh the list of models from the Venice API"
+    key = llm.get_key("", "venice", "LLM_VENICE_KEY")
+    if not key:
+        raise click.ClickException("No key found for Venice")
+    headers = {"Authorization": f"Bearer {key}"}
+
+    models = httpx.get(
+        "https://api.venice.ai/api/v1/models",
+        headers=headers,
+        params={"type": "all"},
+    )
+    models.raise_for_status()
+    models = models.json()["data"]
+
+    if not models:
+        raise click.ClickException("No models found")
+    path = llm.user_dir() / "venice_models.json"
+    path.write_text(json.dumps(models, indent=4))
+    click.echo(f"{len(models)} models saved to {path}", err=True)
+    click.echo(json.dumps(models, indent=4))
+
+    return models
+
+
+@llm.hookimpl
+def register_commands(cli):
+    @cli.group(name="venice")
+    def venice():
+        "llm-venice plugin commands"
+
+    @venice.command(name="refresh")
+    def refresh():
+        refresh_models()
+
+    @click.group(name="api-keys", invoke_without_command=True)
+    @click.pass_context
+    def api_keys(ctx):
+        """Manage API keys - list, create, delete, rate-limits"""
+        # Retrieve the API key once and store it in context
+        key = llm.get_key("", "venice", "LLM_VENICE_KEY")
+        if not key:
+            raise click.ClickException("No key found for Venice")
+
+        ctx.obj = {"headers": {"Authorization": f"Bearer {key}"}}
+
+        # Default to listing API keys if no subcommand is provided
+        if not ctx.invoked_subcommand:
+            ctx.invoke(list_keys)
+
+    @api_keys.command(name="list")
+    @click.pass_context
+    def list_keys(ctx):
+        """List all API keys."""
+        response = httpx.get(
+            "https://api.venice.ai/api/v1/api_keys", headers=ctx.obj["headers"]
+        )
+        response.raise_for_status()
+        click.echo(json.dumps(response.json(), indent=2))
+
+    @api_keys.command(name="rate-limits")
+    @click.pass_context
+    def rate_limits(ctx):
+        "Show current rate limits for your API key"
+        response = httpx.get(
+            "https://api.venice.ai/api/v1/api_keys/rate_limits",
+            headers=ctx.obj["headers"],
+        )
+        response.raise_for_status()
+        click.echo(json.dumps(response.json(), indent=2))
+
+    @api_keys.command(name="create")
+    @click.option(
+        "--type",
+        "key_type",
+        type=click.Choice(["ADMIN", "INFERENCE"]),
+        required=True,
+        help="Type of API key",
+    )
+    @click.option("--description", default="", help="Description for the new API key")
+    @click.option(
+        "--expiration-date",
+        type=click.DateTime(
+            formats=[
+                "%Y-%m-%d",
+                "%Y-%m-%dT%H:%M",
+                "%Y-%m-%dT%H:%M:%S",
+            ]
+        ),
+        default=None,
+        help="The API Key expiration date",
+    )
+    @click.pass_context
+    def create_key(ctx, description, key_type, expiration_date):
+        """Create a new API key."""
+        payload = {
+            "description": description,
+            "apiKeyType": key_type,
+            "expiresAt": expiration_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+            if expiration_date
+            else "",
+        }
+        response = httpx.post(
+            "https://api.venice.ai/api/v1/api_keys",
+            headers=ctx.obj["headers"],
+            json=payload,
+        )
+        response.raise_for_status()
+        click.echo(json.dumps(response.json(), indent=2))
+
+    @api_keys.command(name="delete")
+    @click.argument("api_key_id")
+    @click.pass_context
+    def delete_key(ctx, api_key_id):
+        """Delete an API key by ID."""
+        params = {"id": api_key_id}
+        response = httpx.delete(
+            "https://api.venice.ai/api/v1/api_keys",
+            headers=ctx.obj["headers"],
+            params=params,
+        )
+        response.raise_for_status()
+        click.echo(json.dumps(response.json(), indent=2))
+
+    # Register api-keys command group under "venice"
+    venice.add_command(api_keys)
+
+    # Remove and store the original prompt and chat commands
+    # in order to add them back with custom cli options
+    original_prompt = cli.commands.pop("prompt")
+    original_chat = cli.commands.pop("chat")
+
+    def process_venice_options(kwargs):
+        """Helper to process venice-specific options"""
+        no_venice_system_prompt = kwargs.pop("no_venice_system_prompt", False)
+        web_search = kwargs.pop("web_search", False)
+        character = kwargs.pop("character", None)
+        options = list(kwargs.get("options", []))
+        model = kwargs.get("model_id")
+
+        if model and model.startswith("venice/"):
+            venice_params = {}
+
+            if no_venice_system_prompt:
+                venice_params["include_venice_system_prompt"] = False
+
+            if web_search:
+                venice_params["enable_web_search"] = web_search
+
+            if character:
+                venice_params["character_slug"] = character
+
+            if venice_params:
+                # If a Venice option is used, any `-o extra_body value` is overridden here.
+                # TODO: Would prefer to remove the extra_body CLI option, but
+                # the implementation is required for venice_parameters.
+                options.append(("extra_body", {"venice_parameters": venice_params}))
+                kwargs["options"] = options
+
+        return kwargs
+
+    # Create new prompt command
+    @cli.command(name="prompt")
+    @click.option(
+        "--no-venice-system-prompt",
+        is_flag=True,
+        help="Disable Venice AI's default system prompt",
+    )
+    @click.option(
+        "--web-search",
+        type=click.Choice(["auto", "on", "off"]),
+        help="Enable web search",
+    )
+    @click.option(
+        "--character",
+        help="Use a Venice AI public character (e.g. 'alan-watts')",
+    )
+    @click.pass_context
+    def new_prompt(
+        ctx, no_venice_system_prompt, web_search, character, **kwargs
+    ):
+        """Execute a prompt"""
+        kwargs = process_venice_options(
+            {
+                **kwargs,
+                "no_venice_system_prompt": no_venice_system_prompt,
+                "web_search": web_search,
+                "character": character,
+            }
+        )
+        return ctx.invoke(original_prompt, **kwargs)
+
+    # Create new chat command
+    @cli.command(name="chat")
+    @click.option(
+        "--no-venice-system-prompt",
+        is_flag=True,
+        help="Disable Venice AI's default system prompt",
+    )
+    @click.option(
+        "--web-search",
+        type=click.Choice(["auto", "on", "off"]),
+        help="Enable web search",
+    )
+    @click.option(
+        "--character",
+        help="Use a Venice AI character (e.g. 'alan-watts')",
+    )
+    @click.pass_context
+    def new_chat(ctx, no_venice_system_prompt, web_search, character, **kwargs):
+        """Hold an ongoing chat with a model"""
+        kwargs = process_venice_options(
+            {
+                **kwargs,
+                "no_venice_system_prompt": no_venice_system_prompt,
+                "web_search": web_search,
+                "character": character,
+            }
+        )
+        return ctx.invoke(original_chat, **kwargs)
+
+    # Copy over all params from original commands
+    for param in original_prompt.params:
+        if param.name not in (
+            "no_venice_system_prompt",
+            "web_search",
+            "character",
+        ):
+            new_prompt.params.append(param)
+
+    for param in original_chat.params:
+        if param.name not in (
+            "no_venice_system_prompt",
+            "web_search",
+            "character",
+        ):
+            new_chat.params.append(param)
+
+
+@llm.hookimpl
+def register_models(register):
+    key = llm.get_key("", "venice", "LLM_VENICE_KEY")
+    if not key:
+        return
+
+    venice_models = llm.user_dir() / "venice_models.json"
+    if venice_models.exists():
+        models = json.loads(venice_models.read_text())
+    else:
+        models = refresh_models()
+
+    model_configs = {
+        # TODO: get vision config from traits once available
+        "qwen-2.5-vl": {"vision": True},
+    }
+
+    for model in models:
+        model_id = model["id"]
+        if model.get("type") == "text":
+            register(
+                VeniceChat(
+                    model_id=f"venice/{model_id}",
+                    model_name=model_id,
+                    api_base="https://api.venice.ai/api/v1",
+                    can_stream=True,
+                    **model_configs.get(model_id, {}),
+                )
+            )
+        elif model.get("type") == "image":
+            register(VeniceImage(model_id=model_id, model_name=model_id))
+
+
+================================================
+File: pyproject.toml
+================================================
+[project]
+name = "llm-venice"
+version = "0.5.0"
+description = "LLM plugin to access models available via the Venice API"
+readme = "README.md"
+authors = [{name = "Arjan Mossel"}]
+license = {text = "Apache-2.0"}
+classifiers = [
+    "License :: OSI Approved :: Apache Software License"
+]
+dependencies = [
+    "llm",
+]
+
+[project.urls]
+Homepage = "https://github.com/ar-jan/llm-venice"
+Changelog = "https://github.com/ar-jan/llm-venice/releases"
+Issues = "https://github.com/ar-jan/llm-venice/issues"
+CI = "https://github.com/ar-jan/llm-venice/actions"
+
+[project.entry-points.llm]
+venice = "llm_venice"
+
+[project.optional-dependencies]
+test = [
+    "jsonschema",
+    "pytest",
+    "sqlite_utils",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "api: marks tests that call external APIs"
+]
+
+
+================================================
+File: tests/test_api_keys.py
+================================================
+import json
+import pathlib
+
+from click.testing import CliRunner
+from jsonschema import Draft202012Validator
+from llm.cli import cli
+import pytest
+
+
+api_keys_rate_limits_path = (
+    pathlib.Path(__file__).parent / "schemas" / "api_keys_rate_limits.json"
+)
+with open(api_keys_rate_limits_path) as f:
+    api_keys_rate_limits_schema = json.load(f)
+
+
+@pytest.mark.api
+def test_rate_limits():
+    """Test that 'api-keys rate-limits' output matches expected schema"""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["venice", "api-keys", "rate-limits"])
+
+    assert result.exit_code == 0
+
+    try:
+        data = json.loads(result.output)
+        # jsonschema validate shows full response data on error
+        validator = Draft202012Validator(api_keys_rate_limits_schema)
+        errors = list(validator.iter_errors(data))
+        if errors:
+            error = errors[0]
+            error_path = " -> ".join(str(p) for p in error.path)
+            error_message = f"Schema validation failed at path: {error_path}"
+            pytest.fail(error_message)
+    except json.JSONDecodeError:
+        pytest.fail("Response was not valid JSON")
+
+
+================================================
+File: tests/test_prompt.py
+================================================
+import json
+
+from click.testing import CliRunner
+import llm
+from llm.cli import cli
+import pytest
+import sqlite_utils
+
+
+@pytest.mark.api
+def test_prompt_web_search():
+    """Test that the 'web_search on' option includes web_search_citations"""
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "prompt",
+            "-m",
+            "venice/llama-3.3-70b",
+            "--web-search",
+            "on",
+            "--no-stream",
+            "What is VVV by Venice AI?",
+        ],
+    )
+
+    assert result.exit_code == 0
+
+    # Get the response from the logs database
+    logs_db_path = llm.user_dir() / "logs.db"
+    db = sqlite_utils.Database(logs_db_path)
+    last_response = list(db["responses"].rows)[-1]
+
+    response_json = json.loads(last_response["response_json"])
+    assert "venice_parameters" in response_json
+    assert "web_search_citations" in response_json["venice_parameters"]
+
+    citations = response_json["venice_parameters"]["web_search_citations"]
+    assert isinstance(citations, list)
+    assert len(citations) > 0
+
+
+================================================
+File: tests/test_venice.py
+================================================
+from llm.plugins import load_plugins, pm
+
+
+def test_plugin_is_installed():
+    load_plugins()
+    names = [mod.__name__ for mod in pm.get_plugins()]
+    assert "llm_venice" in names
+
+
+================================================
+File: tests/schemas/api_keys_rate_limits.json
+================================================
+{
+    "type": "object",
+    "properties": {
+        "data": {
+            "type": "object",
+            "properties": {
+                "apiTier": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "isCharged": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "isCharged"
+                    ]
+                },
+                "accessPermitted": {
+                    "type": "boolean"
+                },
+                "balances": {
+                    "type": "object",
+                    "properties": {
+                        "VCU": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "VCU"
+                    ]
+                },
+                "rateLimits": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "apiModelId": {
+                                "type": "string"
+                            },
+                            "rateLimits": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "amount": {
+                                            "type": "number"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "amount",
+                                        "type"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "apiModelId",
+                            "rateLimits"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "apiTier",
+                "accessPermitted",
+                "balances",
+                "rateLimits"
+            ]
+        }
+    },
+    "required": [
+        "data"
+    ]
+}
+
+
+================================================
+File: .github/workflows/release.yml
+================================================
+name: Publish Python Package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: pyproject.toml
+    - name: Install dependencies
+      run: |
+        pip install -e '.[test]'
+    - name: Run tests
+      run: |
+        pytest -m "not api"
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test]
+    environment: release
+    permissions:
+      # mandatory for trusted publishing:
+      id-token: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+        cache: pip
+        cache-dependency-path: pyproject.toml
+    - name: Install dependencies
+      run: |
+        pip install --upgrade build
+    - name: Build
+      run: |
+        python -m build
+    - name: Publish
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+
+================================================
+File: .github/workflows/test.yml
+================================================
+name: Test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install dependencies
+        run: |
+          pip install -e '.[test]'
+      - name: Run tests
+        run: |
+          pytest -m "not api"
+
+  test-api: # Run manually
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install dependencies
+        run: |
+          pip install -e '.[test]'
+      - name: Run API tests
+        env:
+          LLM_VENICE_KEY: ${{ secrets.LLM_VENICE_KEY }}
+        run: |
+          pytest -m "api"
+
+

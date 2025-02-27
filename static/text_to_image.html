@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KryptoKids Magic Drawing Creator</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        h1, h2 {
+            color: #ff6b6b;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .column {
+            flex: 1;
+            min-width: 300px;
+        }
+        form {
+            border: 3px solid #ffd166;
+            padding: 20px;
+            border-radius: 15px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #118ab2;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #06d6a0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        .idea-container {
+            background-color: #f9f7f5;
+            border: 2px dashed #118ab2;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .idea-title {
+            color: #118ab2;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .ideas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .idea-chip {
+            background-color: #ffd166;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .idea-chip:hover {
+            background-color: #ffb347;
+        }
+        button {
+            background-color: #06d6a0;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            transition: background-color 0.3s;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        button:hover {
+            background-color: #04a67a;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            display: none;
+        }
+        .image-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .image-container img {
+            max-width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border: 5px solid white;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        nav {
+            background-color: #118ab2;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #ffd166;
+        }
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 6px solid #06d6a0;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .guide-text {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .emoji-button {
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin: 0 5px;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+        .emoji-button:hover {
+            transform: scale(1.2);
+        }
+        .rating-container {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        .celebration {
+            font-size: 24px;
+            text-align: center;
+            margin-top: 20px;
+            animation: bounce 1s infinite alternate;
+            display: none;
+        }
+        @keyframes bounce {
+            from {transform: translateY(0px);}
+            to {transform: translateY(-10px);}
+        }
+        .nft-traits {
+            border: 2px solid #6c757d;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #f8f9fa;
+            display: none;
+        }
+        .trait {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .trait-title {
+            font-weight: bold;
+            color: #118ab2;
+        }
+        .trait-value {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+            font-size: 14px;
+            color: white;
+        }
+        .common {
+            background-color: #6c757d;
+        }
+        .uncommon {
+            background-color: #20c997;
+        }
+        .rare {
+            background-color: #0d6efd;
+        }
+        .epic {
+            background-color: #6f42c1;
+        }
+        .legendary {
+            background-color: #ffc107;
+            color: black;
+        }
+        .trait-description {
+            font-size: 12px;
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 2px;
+        }
+        .nft-title {
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .save-nft {
+            background-color: #ffd166;
+            color: #333;
+            margin-top: 15px;
+        }
+        .save-nft:hover {
+            background-color: #ffb347;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Upload Drawing</a>
+        <a href="transform.html">Transform Drawing</a>
+        <a href="text_to_image.html">Magic Drawing Creator</a>
+    </nav>
+
+    <h1>KryptoKids Magic Drawing Creator</h1>
+    <p style="text-align: center;">Describe what you want to draw, and our friendly AI will help you create it!</p>
+
+    <div class="container">
+        <div class="column">
+            <h2>Tell us what to draw!</h2>
+            <form id="textToImageForm">
+                <div>
+                    <label for="name">Your Name:</label>
+                    <input type="text" id="name" name="name" placeholder="What's your name?" required>
+                </div>
+                <div>
+                    <label for="holdjarID">Your Holdjar ID:</label>
+                    <input type="text" id="holdjarID" name="holdjarID" placeholder="Your wallet address" required>
+                </div>
+                
+                <div class="idea-container">
+                    <div class="idea-title">Need some ideas? Click these suggestions!</div>
+                    <div class="ideas">
+                        <span class="idea-chip" onclick="addIdea('a friendly dinosaur')">a friendly dinosaur</span>
+                        <span class="idea-chip" onclick="addIdea('a magical unicorn')">a magical unicorn</span>
+                        <span class="idea-chip" onclick="addIdea('a space adventure')">a space adventure</span>
+                        <span class="idea-chip" onclick="addIdea('a cute puppy')">a cute puppy</span>
+                        <span class="idea-chip" onclick="addIdea('a fantasy castle')">a fantasy castle</span>
+                        <span class="idea-chip" onclick="addIdea('underwater treasure')">underwater treasure</span>
+                        <span class="idea-chip" onclick="addIdea('a superhero cat')">a superhero cat</span>
+                        <span class="idea-chip" onclick="addIdea('a colorful dragon')">a colorful dragon</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="drawingDescription">Describe your drawing:</label>
+                    <textarea id="drawingDescription" name="drawingDescription" placeholder="What would you like to draw? For example: 'a friendly blue dragon playing with butterflies'" required></textarea>
+                    <p class="guide-text">Remember to be specific about colors and what your character is doing!</p>
+                </div>
+                
+                <div>
+                    <label for="style">Drawing Style:</label>
+                    <select id="style" name="style" required>
+                        <option value="cartoon">Cartoon (fun and colorful)</option>
+                        <option value="watercolor">Watercolor (soft and dreamy)</option>
+                        <option value="sketch">Sketch (like pencil drawing)</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Create My Magic Drawing! ✨</button>
+            </form>
+        </div>
+        <div class="column">
+            <h2>Your Magic Drawing</h2>
+            <div id="loader" class="loader"></div>
+            <div id="generated-image" class="image-container"></div>
+            <div id="celebration" class="celebration">
+                🎉 Wow! Your magical drawing is ready! 🎉
+            </div>
+            <div id="nft-traits" class="nft-traits">
+                <h3 class="nft-title">Your Magic Drawing NFT Traits</h3>
+                <div id="trait-container"></div>
+                <button class="save-nft" onclick="saveNFT()">Save as NFT</button>
+            </div>
+            <div id="rating-container" class="rating-container">
+                <p>How do you like your drawing?</p>
+                <button class="emoji-button" onclick="rateDrawing('love')">😍</button>
+                <button class="emoji-button" onclick="rateDrawing('like')">😊</button>
+                <button class="emoji-button" onclick="rateDrawing('okay')">😐</button>
+                <button class="emoji-button" onclick="rateDrawing('dislike')">😕</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="response"></div>
+
+    <script>
+        function addIdea(idea) {
+            const textarea = document.getElementById('drawingDescription');
+            
+            // If textarea already has content, add a space before the new idea
+            if (textarea.value && !textarea.value.endsWith(' ')) {
+                textarea.value += ' ';
+            }
+            
+            // Add the idea to the current content
+            textarea.value += idea;
+            
+            // Focus on the textarea and put cursor at the end
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+        }
+
+        document.getElementById('textToImageForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const responseDiv = document.getElementById('response');
+            const generatedImageDiv = document.getElementById('generated-image');
+            const loader = document.getElementById('loader');
+            const celebration = document.getElementById('celebration');
+            const ratingContainer = document.getElementById('rating-container');
+            const nftTraitsDiv = document.getElementById('nft-traits');
+            
+            // Clear previous response and image
+            responseDiv.style.display = 'none';
+            generatedImageDiv.innerHTML = '';
+            celebration.style.display = 'none';
+            ratingContainer.style.display = 'none';
+            nftTraitsDiv.style.display = 'none';
+            loader.style.display = 'block';
+            
+            // Get form data            
+            // Prepare the request payload
+            const payload = {
+                name: document.getElementById('name').value,
+                holdjarID: document.getElementById('holdjarID').value,
+                description: document.getElementById('drawingDescription').value,
+                style: document.getElementById('style').value
+            };
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/text-to-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                // Hide the loader
+                loader.style.display = 'none';
+                
+                if (result.success) {
+                    // Display the generated image
+                    if (result.data && result.data.image_blob) {
+                        const img = document.createElement('img');
+                        img.src = result.data.image_blob;
+                        generatedImageDiv.appendChild(img);
+                        
+                        // Show celebration and rating
+                        celebration.style.display = 'block';
+                        ratingContainer.style.display = 'block';
+                        
+                        // Display NFT traits if available
+                        if (result.data.nft_traits) {
+                            displayNFTTraits(result.data.nft_traits);
+                        }
+                    }
+                    
+                    // Display success message
+                    responseDiv.style.display = 'block';
+                    responseDiv.className = 'success';
+                    responseDiv.innerHTML = '<h3>Magic Complete!</h3><p>' + result.message + '</p>';
+                } else {
+                    showError(result.error || 'Unknown error occurred');
+                }
+            } catch (error) {
+                showError('There was a problem creating your drawing: ' + error.message);
+            }
+        });
+        
+        function rateDrawing(rating) {
+            const responseDiv = document.getElementById('response');
+            
+            // Display feedback message based on rating
+            let message = '';
+            switch(rating) {
+                case 'love':
+                    message = "You LOVED it! We're so happy you enjoyed your magical drawing! ❤️";
+                    break;
+                case 'like':
+                    message = "You liked it! Thank you for your feedback! 😊";
+                    break;
+                case 'okay':
+                    message = "It was okay! We'll try to make it even better next time! 👍";
+                    break;
+                case 'dislike':
+                    message = "Sorry you didn't like it. Try making a new drawing with more details! 🎨";
+                    break;
+            }
+            
+            responseDiv.style.display = 'block';
+            responseDiv.className = 'success';
+            responseDiv.innerHTML = '<h3>Thank You!</h3><p>' + message + '</p>';
+        }
+        
+        function showError(message) {
+            const responseDiv = document.getElementById('response');
+            const loader = document.getElementById('loader');
+            
+            loader.style.display = 'none';
+            responseDiv.style.display = 'block';
+            responseDiv.className = 'error';
+            responseDiv.innerHTML = '<h3>Oops!</h3><p>' + message + '</p>';
+        }
+        
+        function displayNFTTraits(traits) {
+            const nftTraitsDiv = document.getElementById('nft-traits');
+            const traitContainer = document.getElementById('trait-container');
+            traitContainer.innerHTML = '';
+            
+            // Display rarity and other NFT traits
+            if (traits.nft_traits) {
+                // Rarity
+                const rarityTrait = document.createElement('div');
+                rarityTrait.className = 'trait';
+                rarityTrait.innerHTML = `
+                    <span class="trait-title">Rarity:</span>
+                    <span class="trait-value ${traits.nft_traits.rarity}">${traits.nft_traits.rarity}</span>
+                    <div class="trait-description">How rare your magic drawing is in the collection</div>
+                `;
+                traitContainer.appendChild(rarityTrait);
+                
+                // Magical Power
+                const powerTrait = document.createElement('div');
+                powerTrait.className = 'trait';
+                powerTrait.innerHTML = `
+                    <span class="trait-title">Magical Power:</span>
+                    <span class="trait-value uncommon">${traits.nft_traits.magical_power}</span>
+                    <div class="trait-description">The magical element your drawing harnesses</div>
+                `;
+                traitContainer.appendChild(powerTrait);
+                
+                // Special Ability
+                const abilityTrait = document.createElement('div');
+                abilityTrait.className = 'trait';
+                abilityTrait.innerHTML = `
+                    <span class="trait-title">Special Ability:</span>
+                    <span class="trait-value rare">${traits.nft_traits.special_ability}</span>
+                    <div class="trait-description">A special power your drawing possesses</div>
+                `;
+                traitContainer.appendChild(abilityTrait);
+                
+                // Creativity Score
+                const creativityTrait = document.createElement('div');
+                creativityTrait.className = 'trait';
+                creativityTrait.innerHTML = `
+                    <span class="trait-title">Creativity Score:</span>
+                    <span class="trait-value common">${traits.nft_traits.creativity_score}/100</span>
+                    <div class="trait-description">How creative your drawing is rated</div>
+                `;
+                traitContainer.appendChild(creativityTrait);
+                
+                // Uniqueness Factor
+                const uniquenessTrait = document.createElement('div');
+                uniquenessTrait.className = 'trait';
+                uniquenessTrait.innerHTML = `
+                    <span class="trait-title">Uniqueness Factor:</span>
+                    <span class="trait-value common">${traits.nft_traits.uniqueness_factor}/100</span>
+                    <div class="trait-description">How unique your drawing is compared to others</div>
+                `;
+                traitContainer.appendChild(uniquenessTrait);
+            }
+            
+            // Display color properties if available
+            if (traits.color_properties) {
+                const colorTitle = document.createElement('h4');
+                colorTitle.textContent = 'Color Properties';
+                colorTitle.style.marginTop = '15px';
+                traitContainer.appendChild(colorTitle);
+                
+                // Dominant Colors
+                if (traits.color_properties.dominant_colors && traits.color_properties.dominant_colors.length > 0) {
+                    const colorsTrait = document.createElement('div');
+                    colorsTrait.className = 'trait';
+                    colorsTrait.innerHTML = `
+                        <span class="trait-title">Dominant Colors:</span>
+                        <span class="trait-value common">${traits.color_properties.dominant_colors.join(', ')}</span>
+                    `;
+                    traitContainer.appendChild(colorsTrait);
+                }
+                
+                // Brightness
+                if (traits.color_properties.brightness) {
+                    const brightnessTrait = document.createElement('div');
+                    brightnessTrait.className = 'trait';
+                    brightnessTrait.innerHTML = `
+                        <span class="trait-title">Brightness:</span>
+                        <span class="trait-value common">${traits.color_properties.brightness}</span>
+                    `;
+                    traitContainer.appendChild(brightnessTrait);
+                }
+                
+                // Color Diversity
+                if (traits.color_properties.color_diversity) {
+                    const diversityTrait = document.createElement('div');
+                    diversityTrait.className = 'trait';
+                    diversityTrait.innerHTML = `
+                        <span class="trait-title">Color Diversity:</span>
+                        <span class="trait-value common">${traits.color_properties.color_diversity}</span>
+                    `;
+                    traitContainer.appendChild(diversityTrait);
+                }
+            }
+            
+            // Show the NFT traits section
+            nftTraitsDiv.style.display = 'block';
+        }
+        
+        function saveNFT() {
+            alert("🚀 This would save your NFT to the blockchain! 🚀\n\nIn a real implementation, this would interact with a blockchain wallet to mint this image as an NFT with its traits as metadata.");
+        }
+    </script>
+</body>
+</html>

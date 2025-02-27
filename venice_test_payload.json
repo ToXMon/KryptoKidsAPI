@@ -1,0 +1,19 @@
+{
+  "model": "fluently-xl",
+  "prompt": "A detailed photograph of a circle transformed into a smiling face",
+  "height": 512,
+  "width": 512,
+  "steps": 30,
+  "cfg_scale": 7.5,
+  "safe_mode": false,
+  "return_binary": false,
+  "inpaint": {
+    "strength": 80,
+    "source_image_base64": "BASE64_STRING_REMOVED_FOR_BREVITY",
+    "mask": {
+      "image_prompt": "A detailed photograph of a circle transformed into a smiling face",
+      "object_target": "circle",
+      "inferred_object": "smiling face"
+    }
+  }
+}
